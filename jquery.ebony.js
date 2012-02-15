@@ -201,7 +201,8 @@
             // position of the element
             $elem.css(
                 'position',
-                $elem.css('position') === 'static' ? 'relative' : 'absolute'
+                $elem.css('position') === 'static'
+                    ? 'relative' : $elem.css('position')
             );
 
             return this;
