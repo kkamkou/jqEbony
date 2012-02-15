@@ -210,6 +210,11 @@
 
         // custom data cleanup
         _revert: function () {
+            // we can get here another element
+            if (!this.getElement().data('jqEbonyData')) {
+                return this;
+            }
+
             this.getElement()
                 .css(this.getElement().data('jqEbonyData'))
                 .removeData('jqEbonyData')
