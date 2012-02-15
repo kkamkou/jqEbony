@@ -112,6 +112,11 @@
         },
 
         close: function () {
+            // before close function
+            if (typeof (this.getOptions().callbackClose) === 'function') {
+                this.getOptions().callbackClose(this);
+            }
+
             // no layout - no features
             if (!this.hasLayout()) {
                 return this;
@@ -123,11 +128,6 @@
             this.getElement().fadeOut(
                 this.getOptions().animationSpeed || 0,
                 function () {
-                    // before close function
-                    if (typeof (that.getOptions().callbackClose) === 'function') {
-                        that.getOptions().callbackClose(that);
-                    }
-
                     // DOM cleanup
                     that.getLayout().fadeOut(
                         that.getOptions().animationSpeed * 0.5,
@@ -195,6 +195,9 @@
                 'visibility': $elem.css('visibility')
             });
 
+            // storing old styles
+            $elem.data('jqEbony', this);
+
             // position of the element
             $elem.css(
                 'position',
@@ -208,7 +211,8 @@
         _revert: function () {
             this.getElement()
                 .css(this.getElement().data('jqEbonyData'))
-                .removeData('jqEbonyData');
+                .removeData('jqEbonyData')
+                .removeData('jqEbony');
             return this;
         },
 
@@ -226,6 +230,9 @@
 
     // jQuery plugin
     $.fn.jqEbony = function (options) {
-        return (new JqEbony(options, this)).open();
+        if (this.data('jqEbony')) {
+            return this.data('jqEbony');
+        }
+        return new JqEbony(options, this);
     };
 }(document, jQuery));
