@@ -73,7 +73,17 @@
             return this;
         },
 
+        // checks if layout exists
+        hasLayout: function() {
+            return !!this._layout;
+        },
+
         open: function () {
+            // have layout? so, no features
+            if (this.hasLayout()) {
+                return this;
+            }
+
             // key binding
             this._setListener();
             this._transform();
@@ -102,6 +112,11 @@
         },
 
         close: function () {
+            // no layout - no features
+            if (!this.hasLayout()) {
+                return this;
+            }
+
             var that = this;
 
             // overlay close
