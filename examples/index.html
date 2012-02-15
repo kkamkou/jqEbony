@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>jqEbony</title>
+    </head>
+
+    <body>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+        <script type="text/javascript" src="../jquery.ebony.js"></script>
+
+        <p>Simple layout for the other plugins</p>
+
+        <!-- Examples -->
+        <script type="text/javascript">
+            jQuery(function() {
+                jQuery('button:first').bind('click', function () {
+                    jQuery('#target').jqEbony();
+                }).next().bind('click', function () {
+                    jQuery('#target').jqEbony({
+                        'opacity': 1,
+                        'animationSpeed': 600,
+                        'color': '#CCC'
+                    });
+                }).next().bind('click', function () {
+                    jQuery('#target').jqEbony({
+                        'callbackOpen': function() {
+                            alert('Open');
+                        },
+                        'callbackClose': function() {
+                            alert('Close');
+                        }
+                    });
+                }).next().bind('click', function () {
+                    jQuery('#target').jqEbony({
+                        'callbackOpen': function(ebony) {
+                            alert("I'm opener, but will close it");
+                            ebony.close();
+                        },
+                        'callbackClose': function(ebony) {
+                            alert("I'm closer, but will open it");
+                            ebony.open();
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <button>Simple</button>
+        <button>Animated</button>
+        <button>Callbacks, simple</button>
+        <button>Callbacks, inherited</button>
+
+        <div id="target" style="display: none;width: 100px;height: 100px;background-color: #FFF;">Example</div>
+    </body>
+</html>
