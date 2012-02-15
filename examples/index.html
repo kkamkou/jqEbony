@@ -8,7 +8,7 @@
 
     <body>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-        <script type="text/javascript" src="../jquery.ebony.js"></script>
+        <script type="text/javascript" src="https://raw.github.com/kkamkou/jqEbony/master/jquery.ebony.js"></script>
 
         <p>Simple layout for the other plugins</p>
 
@@ -16,13 +16,13 @@
         <script type="text/javascript">
             jQuery(function() {
                 jQuery('button:first').bind('click', function () {
-                    jQuery('#target').jqEbony();
+                    jQuery('#target').jqEbony().open();
                 }).next().bind('click', function () {
                     jQuery('#target').jqEbony({
                         'opacity': 1,
-                        'animationSpeed': 600,
+                        'animationSpeed': 300,
                         'color': '#CCC'
-                    });
+                    }).open();
                 }).next().bind('click', function () {
                     jQuery('#target').jqEbony({
                         'callbackOpen': function() {
@@ -31,18 +31,18 @@
                         'callbackClose': function() {
                             alert('Close');
                         }
-                    });
+                    }).open();
                 }).next().bind('click', function () {
                     jQuery('#target').jqEbony({
                         'callbackOpen': function(ebony) {
                             alert("I'm opener, but will close it");
                             ebony.close();
-                        },
-                        'callbackClose': function(ebony) {
-                            alert("I'm closer, but will open it");
-                            ebony.open();
                         }
-                    });
+                    }).open();
+                });
+
+                jQuery('#killme').bind('click', function () {
+                    jQuery('#target').jqEbony().close();
                 });
             });
         </script>
@@ -52,6 +52,9 @@
         <button>Callbacks, simple</button>
         <button>Callbacks, inherited</button>
 
-        <div id="target" style="display: none;width: 100px;height: 100px;background-color: #FFF;">Example</div>
+        <div id="target" style="display: none;width: 100px;height: 100px;background-color: #FFF;">
+            Example
+            <a href="#" id="killme">Kill me</a>
+        </div>
     </body>
 </html>

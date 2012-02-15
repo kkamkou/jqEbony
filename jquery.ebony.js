@@ -74,7 +74,7 @@
         },
 
         // checks if layout exists
-        hasLayout: function() {
+        hasLayout: function () {
             return !!this._layout;
         },
 
