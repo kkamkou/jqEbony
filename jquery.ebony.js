@@ -88,25 +88,28 @@
             this._setListener();
             this._transform();
 
+            // z-index increase
+            this.setIndexZ(this.getIndexZ() + 1);
+
             // defaults
             var that = this;
 
             // we should display all we have so far
-            this.getLayout().fadeIn(
-                this.getOptions().animationSpeed,
-                function () {
-                    that.getElement()
-                        .css('z-index', that.getIndexZ() + 1)
-                        .fadeIn(
-                            that.getOptions().animationSpeed,
-                            function () {
-                                if (typeof (that.getOptions().callbackOpen) === 'function') {
-                                    that.getOptions().callbackOpen(that);
+            this.getLayout()
+                .fadeIn(
+                    this.getOptions().animationSpeed,
+                    function () {
+                        that.getElement().css('z-index', that.getIndexZ())
+                            .fadeIn(
+                                that.getOptions().animationSpeed,
+                                function () {
+                                    if (typeof (that.getOptions().callbackOpen) === 'function') {
+                                        that.getOptions().callbackOpen(that);
+                                    }
                                 }
-                            }
-                        );
-                }
-            );
+                            );
+                    }
+                );
 
             return this;
         },
