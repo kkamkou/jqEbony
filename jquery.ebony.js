@@ -12,6 +12,7 @@
  * Creates black area for the DOM element
  *
  * @example:
+ *  jQuery.jqEbonyOptions.color = '#FFF'; // global
  *  jQuery('#myDiv').jqEbony({
  *      'opacity': 0.5,
  *      'zIndex': 99999,
@@ -24,19 +25,22 @@
 (function (doc, $) {
     "use strict";
 
+    // default options
+    $.jqEbonyOptions = {
+        'opacity': 0.5,
+        'zIndex': 99999,
+        'callbackClose': null,
+        'callbackOpen': null,
+        'animationSpeed': 0, // in ms, for example: 200, 400 or 800
+        'color': '#000'
+    };
+
     // main class
     var JqEbony = function (options, element) {
         // default members
         this._layout = null;
         this._element = element;
-        this._options = $.extend({
-            'opacity': 0.5,
-            'zIndex': 99999,
-            'callbackClose': null,
-            'callbackOpen': null,
-            'animationSpeed': 0, // in ms, for example: 200, 400 or 800
-            'color': '#000'
-        }, options || {});
+        this._options = $.extend($.jqEbonyOptions, options || {});
     };
 
     // extends
@@ -52,8 +56,7 @@
         // returns z-index value
         getIndexZ: function () {
             return parseInt(
-                $('body').data('jqEbony') || this.getOptions().zIndex,
-                10
+                $('body').data('jqEbony') || this.getOptions().zIndex, 10
             );
         },
 
@@ -95,21 +98,21 @@
             var that = this;
 
             // we should display all we have so far
-            this.getLayout()
-                .fadeIn(
-                    this.getOptions().animationSpeed,
-                    function () {
-                        that.getElement().css('z-index', that.getIndexZ())
-                            .fadeIn(
-                                that.getOptions().animationSpeed,
-                                function () {
-                                    if (typeof (that.getOptions().callbackOpen) === 'function') {
-                                        that.getOptions().callbackOpen(that);
-                                    }
+            this.getLayout().fadeIn(
+                this.getOptions().animationSpeed,
+                function () {
+                    that.getElement()
+                        .css('z-index', that.getIndexZ())
+                        .fadeIn(
+                            that.getOptions().animationSpeed,
+                            function () {
+                                if (typeof (that.getOptions().callbackOpen) === 'function') {
+                                    that.getOptions().callbackOpen(that);
                                 }
-                            );
-                    }
-                );
+                            }
+                        );
+                }
+            );
 
             return this;
         },
@@ -222,6 +225,7 @@
                 .css(this.getElement().data('jqEbonyData'))
                 .removeData('jqEbonyData')
                 .removeData('jqEbony');
+
             return this;
         },
 
@@ -239,9 +243,6 @@
 
     // jQuery plugin
     $.fn.jqEbony = function (options) {
-        if (this.data('jqEbony')) {
-            return this.data('jqEbony');
-        }
-        return new JqEbony(options, this);
+        return (this.data('jqEbony') || new JqEbony(options, this));
     };
 }(document, jQuery));

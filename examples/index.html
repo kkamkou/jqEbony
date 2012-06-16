@@ -8,7 +8,7 @@
 
     <body>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-        <script type="text/javascript" src="https://raw.github.com/kkamkou/jqEbony/master/jquery.ebony.js"></script>
+        <script type="text/javascript" src="../jquery.ebony.js"></script>
 
         <p>Simple layout for the other plugins</p>
 
@@ -39,6 +39,11 @@
                             ebony.close();
                         }
                     }).open();
+                }).next().bind('click', function () {
+                    jQuery.jqEbonyOptions.callbackOpen = function(ebony) {
+                        alert("callbackOpen changed globally");
+                    }
+                    jQuery('#target').jqEbony().open();
                 });
 
                 jQuery('#killme').bind('click', function () {
@@ -51,6 +56,7 @@
         <button>Animated</button>
         <button>Callbacks, simple</button>
         <button>Callbacks, inherited</button>
+        <button>Callbacks, switch</button>
 
         <div id="target" style="display: none;width: 100px;height: 100px;background-color: #FFF;">
             Example
