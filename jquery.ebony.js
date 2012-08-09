@@ -222,6 +222,9 @@
                     'scrollTop': $html.scrollTop()
                 };
 
+            // storing object
+            $elem.data('jqEbony', this);
+
             // storing old styles
             this.getLayout().data('jqEbonyData', {
                 'element': {
@@ -275,7 +278,8 @@
             // element styles update
             this.getElement()
                 .css($layout.data('jqEbonyData').element)
-                .removeData('jqEbonyData');
+                .removeData('jqEbonyData')
+                .removeData('jqEbony');
 
             return this;
         },
@@ -297,6 +301,6 @@
 
     // jQuery plugin
     $.fn.jqEbony = function (options) {
-        return (new JqEbony(options, $(this)));
+        return (this.data('jqEbony') || new JqEbony(options, $(this)));
     };
 }(document, jQuery));
