@@ -9,15 +9,19 @@
  */
 
 /**
+ * v1.0
+ *
  * Creates black area for the DOM element
  *
  * @example:
- *  jQuery.jqEbonyOptions.color = '#FFF'; // global
+ *  jQuery.jqEbonyOptions.color = [0, 0, 0]; // global
  *  jQuery('#myDiv').jqEbony({
  *      'opacity': 0.5,
  *      'zIndex': 99999,
  *      'callbackClose': null,
  *      'callbackOpen': null,
+ *      'escapeCloses': true,
+ *      'clickCloses': true,
  *      'animationSpeed': 200,
  *      'color': [0, 0, 0] // white
  *  });
@@ -29,6 +33,8 @@
     $.jqEbonyOptions = {
         'opacity': 0.5,
         'zIndex': 99999,
+        'escapeCloses': true,
+        'clickCloses': true,
         'callbackClose': null,
         'callbackOpen': null,
         'animationSpeed': 1, // in ms, for example: 200, 400 or 800
@@ -85,6 +91,7 @@
             return !!this.layout;
         },
 
+        // creates overlay and shows it
         open: function () {
             // have layout? so, no features
             if (this.hasLayout()) {
@@ -176,23 +183,31 @@
             var that = this;
 
             // escape key
-            $(doc).one('keydown', function (event) {
-                if ((event.keyCode || event.which) === 27) {
-                    event.stopImmediatePropagation();
-                    return that.close();
-                }
-            });
+            if (this.options.escapeCloses) {
+                $(doc).one('keydown.jqEbony', function (event) {
+                    if ((event.keyCode || event.which) === 27) {
+                        event.stopImmediatePropagation();
+                        return that.close();
+                    }
+                });
 
-            // let's make the current event first
-            $(doc).data('events').keydown.unshift(
-                $(doc).data('events').keydown.pop()
-            );
+                // let's make the current event first
+                $(doc).data('events').keydown.unshift(
+                    $(doc).data('events').keydown.pop()
+                );
+            }
 
             // layout click
-            this.getLayout().bind('click', function () {
-                that.close();
-                return false;
-            });
+            if (this.options.clickCloses) {
+                this.getLayout().bind('click', function (e) {
+                    $('>*', this).each(function () {
+                        if ($(e.target).get(0) !== $(this).get(0)
+                                && $(e.target).closest('html', $(this).get(0)).length) {
+                            return that.close();
+                        }
+                    });
+                });
+            }
 
             return this;
         },
