@@ -19,7 +19,7 @@
  *      'callbackClose': null,
  *      'callbackOpen': null,
  *      'animationSpeed': 200,
- *      'color': '#000'
+ *      'color': [0, 0, 0] // white
  *  });
  */
 (function (doc, $) {
