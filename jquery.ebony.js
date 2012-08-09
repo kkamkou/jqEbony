@@ -31,43 +31,41 @@
         'zIndex': 99999,
         'callbackClose': null,
         'callbackOpen': null,
-        'animationSpeed': 0, // in ms, for example: 200, 400 or 800
-        'color': '#000'
+        'animationSpeed': 1, // in ms, for example: 200, 400 or 800
+        'color': [0, 0, 0]
     };
 
     // main class
     var JqEbony = function (options, element) {
         // default members
-        this._layout = null;
-        this._element = element;
-        this._options = $.extend($.jqEbonyOptions, options || {});
+        this.layout = null;
+        this.element = element;
+        this.options = $.extend($.jqEbonyOptions, options || {});
     };
 
     // extends
     JqEbony.prototype = {
         // returns the ebony layout
         getLayout: function () {
-            if (!this._layout) {
-                this._layout = this._getDefaultLayout();
-            }
-            return this._layout;
+            return this.layout;
         },
 
         // returns z-index value
         getIndexZ: function () {
             return parseInt(
-                $('body').data('jqEbony') || this.getOptions().zIndex, 10
+                $('body').data('jqEbony') || this.getOptions().zIndex,
+                10
             );
         },
 
         // options here
         getOptions: function () {
-            return this._options;
+            return this.options;
         },
 
         // current element
         getElement: function () {
-            return this._element;
+            return this.element;
         },
 
         // sets z-index value
@@ -76,9 +74,15 @@
             return this;
         },
 
+        // updates the layout object
+        setLayout: function (layout) {
+            this.layout = layout;
+            return this;
+        },
+
         // checks if layout exists
         hasLayout: function () {
-            return !!this._layout;
+            return !!this.layout;
         },
 
         open: function () {
@@ -87,18 +91,23 @@
                 return this;
             }
 
-            // key binding
-            this._setListener();
-            this._transform();
+            // default layout object
+            this.setLayout(this.getDefaultLayout());
 
-            // z-index increase
-            this.setIndexZ(this.getIndexZ() + 1);
+            // key listeners
+            this._setListeners();
+
+            // wrapper
+            this.getElement().wrapAll(this.getLayout());
+
+            this._transform() // overlay transformations
+                .setIndexZ(this.getIndexZ() + 1); // z-index corrections
 
             // defaults
             var that = this;
 
             // we should display all we have so far
-            this.getLayout().fadeIn(
+            this.getElement().parent().fadeIn(
                 this.getOptions().animationSpeed,
                 function () {
                     that.getElement()
@@ -118,29 +127,24 @@
         },
 
         close: function () {
-            // before close function
-            if (typeof (this.getOptions().callbackClose) === 'function') {
-                this.getOptions().callbackClose(this);
-            }
-
             // no layout - no features
             if (!this.hasLayout()) {
                 return this;
             }
 
+            // before close function
+            if (typeof (this.getOptions().callbackClose) === 'function') {
+                this.getOptions().callbackClose(this);
+            }
+
             var that = this;
 
             // overlay close
-            this.getElement().fadeOut(
-                this.getOptions().animationSpeed || 0,
+            this.getElement().parent().fadeOut(
+                this.getOptions().animationSpeed,
                 function () {
                     // DOM cleanup
-                    that.getLayout().fadeOut(
-                        that.getOptions().animationSpeed * 0.5,
-                        function () {
-                            that._layoutRemove();
-                        }
-                    );
+                    that.layoutRemove();
                 }
             );
 
@@ -148,32 +152,34 @@
         },
 
         // default element with style (black area)
-        _getDefaultLayout: function () {
-            return $('<div />').css({
-                'bottom': 0,
-                'display': 'none',
-                'left': 0,
-                'position': 'fixed',
-                '_position': 'absolute', // ie fix
-                'right': 0,
-                'top': 0,
-                'background-color' : this.getOptions().color,
-                'z-index': this.getIndexZ(),
-                'opacity': this.getOptions().opacity,
-                'width': '100%',
-                'height': '100%'
-            });
+        getDefaultLayout: function () {
+            return $('<div />').addClass('jqEbony')
+                .css({
+                    'display': 'none',
+                    'position': 'fixed',
+                    'right': 0,
+                    'top': 0,
+                    'left': 0,
+                    'bottom': 0,
+                    'overflow': 'auto',
+                    'zoom': 1,
+                    'z-index': this.getIndexZ(),
+                    'background': 'rgba('
+                        + (this.getOptions().color).join(',') + ','
+                        + this.getOptions().opacity
+                        + ')'
+                });
         },
 
         // adds events (escape and the mouse click)
-        _setListener: function () {
+        _setListeners: function () {
             var that = this;
 
             // escape key
             $(doc).one('keydown', function (event) {
                 if ((event.keyCode || event.which) === 27) {
                     event.stopImmediatePropagation();
-                    return that.close(that.getOptions().animationSpeed);
+                    return that.close();
                 }
             });
 
@@ -182,60 +188,94 @@
                 $(doc).data('events').keydown.pop()
             );
 
-            // DOM update
-            $('body').append(
-                that.getLayout().bind('click', function () {
-                    return that.close(that.getOptions().animationSpeed);
-                })
-            );
+            // layout click
+            this.getLayout().bind('click', function () {
+                that.close();
+                return false;
+            });
+
+            return this;
         },
 
         // element transformation
         _transform: function () {
-            var $elem = this.getElement();
+            var $elem = this.getElement(),
+                $body = $('body'),
+                $html = $('html'),
+                old = {
+                    'outerWidth': $body.outerWidth(true),
+                    'marginRight': parseInt($('body').css('margin-right'), 10),
+                    'scrollTop': $html.scrollTop()
+                };
 
             // storing old styles
-            $elem.data('jqEbonyData', {
-                'position': $elem.css('position'),
-                'display': $elem.css('display'),
-                'visibility': $elem.css('visibility')
+            this.getLayout().data('jqEbonyData', {
+                'element': {
+                    'position': $elem.css('position'),
+                    'display': $elem.css('display'),
+                    'visibility': $elem.css('visibility')
+                },
+                'html': {'overflow': $('body').css('overflow-y')},
+                'body': {'margin-right': $('body').css('margin-right')},
+                'layout': old
             });
 
-            // storing old styles
-            $elem.data('jqEbony', this);
+            // overflow corrections of the body
+            $html.css('overflow', 'hidden');
 
-            // position of the element
-            $elem.css(
-                'position',
-                $elem.css('position') === 'static'
-                    ? 'relative' : $elem.css('position')
+            // scroll corrections
+            $body.css(
+                'margin-right',
+                $body.outerWidth(true) - old.outerWidth + old.marginRight
             );
+
+            // firefox fix
+            $html.scrollTop(old.scrollTop);
 
             return this;
         },
 
         // custom data cleanup
         _revert: function () {
+            // z-index corrections
+            this.setIndexZ(this.getIndexZ() - 1);
+
             // we can get here another element
-            if (!this.getElement().data('jqEbonyData')) {
+            if (!this.getLayout().data('jqEbonyData')) {
                 return this;
             }
 
+            // the layout object
+            var $layout = this.getLayout(),
+                oldScroll = $('html').scrollTop();
+
+            // body revert
+            if (!$('div.jqEbony').length) {
+                $('body').css($layout.data('jqEbonyData').body);
+
+                // html revert
+                $('html').css($layout.data('jqEbonyData').html)
+                    .scrollTop(oldScroll); // firefox fix
+            }
+
+            // element styles update
             this.getElement()
-                .css(this.getElement().data('jqEbonyData'))
-                .removeData('jqEbonyData')
-                .removeData('jqEbony');
+                .css($layout.data('jqEbonyData').element)
+                .removeData('jqEbonyData');
 
             return this;
         },
 
         // removes black area from the DOM
-        _layoutRemove: function () {
-            this._revert()
-                .setIndexZ(this.getIndexZ() - 1)
-                .getLayout().remove();
+        layoutRemove: function () {
+            // layout cleanup
+            this.getElement().unwrap();
 
-            this._layout = null; // memory cleanup
+            // design revert
+            this._revert();
+
+            // memory cleanup
+            this.setLayout(null);
 
             return this;
         }
@@ -243,6 +283,6 @@
 
     // jQuery plugin
     $.fn.jqEbony = function (options) {
-        return (this.data('jqEbony') || new JqEbony(options, this));
+        return (new JqEbony(options, $(this)));
     };
 }(document, jQuery));
