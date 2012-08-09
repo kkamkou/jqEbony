@@ -233,8 +233,7 @@
                     'visibility': $elem.css('visibility')
                 },
                 'html': {'overflow': $('body').css('overflow-y')},
-                'body': {'margin-right': $('body').css('margin-right')},
-                'layout': old
+                'body': {'margin-right': $('body').css('margin-right')}
             });
 
             // overflow corrections of the body
