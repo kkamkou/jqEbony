@@ -169,7 +169,6 @@
                     'left': 0,
                     'bottom': 0,
                     'overflow': 'auto',
-                    'zoom': 1,
                     'z-index': this.getIndexZ(),
                     'background': 'rgba('
                         + (this.getOptions().color).join(',') + ','
