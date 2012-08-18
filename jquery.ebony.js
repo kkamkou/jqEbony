@@ -191,8 +191,8 @@
                 });
 
                 // let's make the current event first
-                $(doc).data('events').keydown.unshift(
-                    $(doc).data('events').keydown.pop()
+                $._data(doc, 'events').keydown.unshift(
+                    $._data(doc, 'events').keydown.pop()
                 );
             }
 
