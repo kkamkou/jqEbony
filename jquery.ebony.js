@@ -123,7 +123,7 @@
                             that.getOptions().animationSpeed,
                             function () {
                                 if (typeof (that.getOptions().callbackOpen) === 'function') {
-                                    that.getOptions().callbackOpen(that);
+                                    that.getOptions().callbackOpen.call(that);
                                 }
                             }
                         );
@@ -139,11 +139,6 @@
                 return this;
             }
 
-            // before close function
-            if (typeof (this.getOptions().callbackClose) === 'function') {
-                this.getOptions().callbackClose(this);
-            }
-
             var that = this;
 
             // overlay close
@@ -151,7 +146,18 @@
                 this.getOptions().animationSpeed,
                 function () {
                     // DOM cleanup
-                    that.layoutRemove();
+                    that.getElement().unwrap();
+
+                    // design revert
+                    that._revert();
+
+                    // memory cleanup
+                    that.setLayout(null);
+
+                    // before close function
+                    if (typeof (that.getOptions().callbackClose) === 'function') {
+                        that.getOptions().callbackClose.call(that);
+                    }
                 }
             );
 
@@ -279,20 +285,6 @@
                 .css($layout.data('jqEbonyData').element)
                 .removeData('jqEbonyData')
                 .removeData('jqEbony');
-
-            return this;
-        },
-
-        // removes black area from the DOM
-        layoutRemove: function () {
-            // layout cleanup
-            this.getElement().unwrap();
-
-            // design revert
-            this._revert();
-
-            // memory cleanup
-            this.setLayout(null);
 
             return this;
         }
