@@ -208,7 +208,7 @@
             // layout click
             if (this.options.clickCloses) {
                 // default click target
-                var $clickArea = this.getElement();
+                var $clickArea = this.getElement().parent();
 
                 // click target changeg by options
                 if (this.getOptions().clickCloseArea !== null) {
