@@ -31,13 +31,14 @@
 
     // default options
     $.jqEbonyOptions = {
-        'opacity': 0.5,
+        'opacity': 0.7,
         'zIndex': 99999,
         'escapeCloses': true,
         'clickCloses': true,
+        'clickCloseArea': null,
         'callbackClose': null,
         'callbackOpen': null,
-        'animationSpeed': 1, // in ms, for example: 200, 400 or 800
+        'animationSpeed': 0, // in ms, for example: 200, 400 or 800
         'color': [0, 0, 0]
     };
 
@@ -166,6 +167,11 @@
 
         // default element with style (black area)
         getDefaultLayout: function () {
+            var rgba = [];
+
+            rgba.push(this.getOptions().color);
+            rgba.push(this.getOptions().opacity);
+
             return $('<div />').addClass('jqEbony')
                 .css({
                     'display': 'none',
@@ -176,10 +182,7 @@
                     'bottom': 0,
                     'overflow': 'auto',
                     'z-index': this.getIndexZ(),
-                    'background': 'rgba('
-                        + (this.getOptions().color).join(',') + ','
-                        + this.getOptions().opacity
-                        + ')'
+                    'background': 'rgba(' + rgba.join(',') + ')'
                 });
         },
 
@@ -189,7 +192,7 @@
 
             // escape key
             if (this.options.escapeCloses) {
-                $(doc).one('keydown.jqEbony', function (event) {
+                $(doc).one('keyup.jqEbony', function (event) {
                     if ((event.keyCode || event.which) === 27) {
                         event.stopImmediatePropagation();
                         return that.close();
@@ -197,17 +200,25 @@
                 });
 
                 // let's make the current event first
-                $._data(doc, 'events').keydown.unshift(
-                    $._data(doc, 'events').keydown.pop()
+                $._data(doc, 'events').keyup.unshift(
+                    $._data(doc, 'events').keyup.pop()
                 );
             }
 
             // layout click
             if (this.options.clickCloses) {
-                this.getLayout().bind('click', function (e) {
-                    $('>*', this).each(function () {
-                        if ($(e.target).get(0) !== $(this).get(0)
-                                && $(e.target).closest('html', $(this).get(0)).length) {
+                // default click target
+                var $clickArea = this.getElement();
+
+                // click target changeg by options
+                if (this.getOptions().clickCloseArea !== null) {
+                    $clickArea = $(this.getOptions().clickCloseArea);
+                }
+
+                // click listener
+                this.getElement().bind('click.jqEbony', function (e) {
+                    $('>*', $clickArea).each(function () {
+                        if (e.target !== this && $(e.target).closest('html', this).length) {
                             return that.close();
                         }
                     });
@@ -238,7 +249,7 @@
                     'display': $elem.css('display'),
                     'visibility': $elem.css('visibility')
                 },
-                'html': {'overflow': $('body').css('overflow-y')},
+                'html': {'overflow': $('html').css('overflow-y')},
                 'body': {'margin-right': $('body').css('margin-right')}
             });
 
