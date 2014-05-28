@@ -9,7 +9,7 @@
  */
 
 /**
- * v1.1
+ * v1.2
  *
  * Creates black area for the DOM element
  *
@@ -19,6 +19,7 @@
  *      'opacity': 0.5,
  *      'zIndex': 99999,
  *      'callbackClose': null,
+ *      'callbackCloseBefore': null,
  *      'callbackOpen': null,
  *      'escapeCloses': true,
  *      'clickCloses': true,
@@ -37,6 +38,7 @@
     'clickCloses': true,
     'clickCloseArea': null,
     'callbackClose': null,
+    'callbackCloseBefore': null,
     'callbackOpen': null,
     'animationSpeed': 0, // in ms, for example: 200, 400 or 800
     'color': [0, 0, 0]
@@ -60,8 +62,7 @@
     // returns z-index value
     getIndexZ: function () {
       return parseInt(
-        $('body').data('jqEbony') || this.getOptions().zIndex,
-        10
+        $('body').data('jqEbony') || this.getOptions().zIndex, 10
       );
     },
 
@@ -123,7 +124,7 @@
             .fadeIn(
               parseInt(that.getOptions().animationSpeed / 2, 10),
               function () {
-                if (typeof (that.getOptions().callbackOpen) === 'function') {
+                if ($.isFunction(that.getOptions().callbackOpen)) {
                   that.getOptions().callbackOpen.call(that);
                 }
               }
@@ -140,14 +141,21 @@
         return this;
       }
 
-      var that = this;
+      // defaults
+      var that = this,
+        $element = this.getElement();
+
+      // pre-close callback
+      if ($.isFunction(this.getOptions().callbackCloseBefore)) {
+        this.getOptions().callbackCloseBefore($element);
+      }
 
       // overlay close
-      this.getElement().parent().fadeOut(
+      $element.parent().fadeOut(
         this.getOptions().animationSpeed,
         function () {
           // DOM cleanup
-          that.getElement().unwrap();
+          $element.unwrap();
 
           // design revert
           that._revert();
@@ -156,7 +164,7 @@
           that.setLayout(null);
 
           // before close function
-          if (typeof (that.getOptions().callbackClose) === 'function') {
+          if ($.isFunction(that.getOptions().callbackClose)) {
             that.getOptions().callbackClose.call(that);
           }
         }
